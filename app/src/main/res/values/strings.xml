@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Kotlin</string>
+    <string name="text1">"Geekbrains + Kotlin forever"</string>
+    <string name="text2">"Я Kotlin бы выучил только за то, что на нем разрабатывал Вортон!"</string>
 </resources>
