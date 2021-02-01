@@ -63,5 +63,17 @@ class NoteActivity : AppCompatActivity() {
         }
         else -> super.onOptionsItemSelected(item)
     }
+
+    private fun initView() {
+        note?.run {
+            supportActionBar?.title = lastChanged.format()
+
+            titleEt.setText(title)
+            bodyEt.setText(body)
+
+            toolbar.setBackgroundColor(color.getColorInt(this@NoteActivity))
+        }
+    }
+
 }
 
