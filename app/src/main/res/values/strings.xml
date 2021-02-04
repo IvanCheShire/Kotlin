@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Kotlin</string>
+    <string name="text1">"Geekbrains + Kotlin forever"</string>
+    <string name="text2">"Я Kotlin бы выучил только за то, что на нем разрабатывал Вортон!"</string>
+    <string name="logout_dialog_title">Выйти из аккаунта?</string>
+    <string name="logout_dialog_message">Все ваши заметки будут сохранены. Вы сможете получить к ним доступ после авторизации.</string>
+    <string name="logout_dialog_cancel">Отмена</string>
 </resources>
