@@ -13,8 +13,8 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_scrollFlags="scroll|enterAlways"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
+            app:layout_scrollFlags="scroll|enterAlways"/>
+
 
     </android.support.design.widget.AppBarLayout>
 
@@ -37,6 +37,22 @@
                 android:layout_height="wrap_content"
                 android:textColor="@android:color/black"/>
         </android.support.design.widget.TextInputLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorPrimaryDark"/>
+
+        <HorizontalScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scrollbars="none">
+
+            <com.geekbrains.geekbrainskotlin.ui.customviews.ColorPickerView
+                android:id="@+id/colorPicker"
+                android:layout_width="wrap_content"
+                android:layout_height="?attr/actionBarSize"/>
+        </HorizontalScrollView>
+
 
         <EditText
             android:id="@+id/bodyEt"

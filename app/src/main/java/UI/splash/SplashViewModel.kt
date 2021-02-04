@@ -5,7 +5,7 @@ import UI.base.BaseViewModel
 import data.errors.NoAuthException
 
 
-class SplashViewModel(private val repository: Repository = Repository) : BaseViewModel<Boolean?, SplashViewState>() {
+class SplashViewModel(repository: Repository) {
 
     fun requestUser() {
         repository.getCurrentUser().observeForever {

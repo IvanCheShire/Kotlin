@@ -3,6 +3,7 @@ package UI.main
 import UI.base.BaseActivity
 import UI.note.NoteActivity
 import UI.splash.SplashActivity
+import UI.splash.SplashViewModel
 import android.app.Activity
 import android.content.Intent
 import android.widget.TextView
@@ -17,12 +18,16 @@ import androidx.lifecycle.ViewModelProviders
 import com.firebase.ui.auth.AuthUI
 import com.google.api.Context
 import data.model.Note
+import org.jetbrains.anko.alert
+import org.koin.android.ext.android.inject
+import org.koin.android.viewmodel.ext.android.viewModel
 import ru.geekbrains.kotlin.R
 
 
 class MainActivity : BaseActivity<List<Note>?, MainViewState>(), LogoutDialog.LogoutListener {
 
-    override val viewModel: MainViewModel by lazy { ViewModelProviders.of(this).get(MainViewModel::class.java) }
+    override val viewModel: SplashViewModel by inject()
+    override val model: SplashViewModel by viewModel()
     override val layoutRes: Int = R.layout.activity_main
     private lateinit var adapter: MainAdapter
 
@@ -49,10 +54,11 @@ class MainActivity : BaseActivity<List<Note>?, MainViewState>(), LogoutDialog.Lo
         adapter.notes = data
     }
 
+
     private fun openNoteScreen(note: Note?) {
-        val intent = NoteActivity.getStartIntent(this, note?.id)
-        startActivity(intent)
+        NoteActivity.start(this, note?.id)
     }
+
 
     companion object {
         fun getStartIntent(context: Context) = Intent(context, MainActivity::class.java)
@@ -65,10 +71,16 @@ class MainActivity : BaseActivity<List<Note>?, MainViewState>(), LogoutDialog.Lo
                 R.id.logout -> showLogoutDialog().let { true }
                 else -> false
             }
+
     private fun showLogoutDialog() {
-        supportFragmentManager.findFragmentByTag(LogoutDialog.TAG) ?:
-        LogoutDialog.createInstance().show(supportFragmentManager, LogoutDialog.TAG)
+        alert {
+            titleResource = R.string.logout_dialog_title
+            messageResource = R.string.logout_dialog_message
+            positiveButton(R.string.ok_bth_title) { onLogout() }
+            negativeButton(R.string.cancel_btn_title) { dialog -> dialog.dismiss() }
+        }.show()
     }
+
     override fun onLogout() {
         AuthUI.getInstance()
                 .signOut(this)

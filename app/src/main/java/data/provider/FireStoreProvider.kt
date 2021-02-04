@@ -3,20 +3,21 @@ package data.provider
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.google.android.gms.tasks.OnFailureListener
-import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.*
 import data.errors.NoAuthException
 import data.model.Note
-import data.model.NoteResult
+import data.model.Result
 import data.model.User
 
 
 private const val NOTES_COLLECTION = "notes"
 private const val USERS_COLLECTION = "users"
 
-class FireStoreProvider : RemoteDataProvider {
+
+class FireStoreProvider(private val firebaseAuth: FirebaseAuth,
+                        private val db: FirebaseFirestore) : RemoteDataProvider
+{
 
     private val TAG = "${FireStoreProvider::class.java.simpleName} :"
 
@@ -26,49 +27,49 @@ class FireStoreProvider : RemoteDataProvider {
         get() = FirebaseAuth.getInstance().currentUser
 
 
-    override fun subscribeToAllNotes(): LiveData<NoteResult> =
-            MutableLiveData<NoteResult>().apply {
+    override fun subscribeToAllNotes(): LiveData<Result> =
+            MutableLiveData<Result>().apply {
                 try {
                     getUserNotesCollection().addSnapshotListener { snapshot, e ->
                         value = e?.let { throw it }
                                 ?: snapshot?.let {
                                     val notes = it.documents.map { it.toObject(Note::class.java) }
-                                    NoteResult.Success(notes)
+                                    Result.Success(notes)
                                 }
                     }
                 }catch (e: Throwable) {
-                    value = NoteResult.Error(e)
+                    value = Result.Error(e)
                 }
             }
 
-    override fun saveNote(note: Note): LiveData<NoteResult> =
-            MutableLiveData<NoteResult>().apply {
+    override fun saveNote(note: Note): LiveData<Result> =
+            MutableLiveData<Result>().apply {
                 try {
                     getUserNotesCollection().document(note.id)
                             .set(note).addOnSuccessListener {
                                 Log.d(TAG, "Note $note is saved")
-                                value = NoteResult.Success(note)
+                                value = Result.Success(note)
                             }.addOnFailureListener {
                                 Log.d(TAG, "Error saving note $note, message: ${it.message}")
                                 throw it
                             }
                 } catch (e: Throwable) {
-                    value = NoteResult.Error(e)
+                    value = Result.Error(e)
                 }
             }
 
-    override fun getNoteById(id: String): LiveData<NoteResult> =
-            MutableLiveData<NoteResult>().apply {
+    override fun getNoteById(id: String): LiveData<Result> =
+            MutableLiveData<Result>().apply {
                 try {
 
                     getUserNotesCollection().document(id).get()
                             .addOnSuccessListener {
-                                value = NoteResult.Success(it.toObject(Note::class.java))
+                                value = Result.Success(it.toObject(Note::class.java))
                             }.addOnFailureListener {
                                 throw it
                             }
                 } catch (e: Throwable) {
-                    value = NoteResult.Error(e)
+                    value = Result.Error(e)
                 }
             }
 
@@ -82,6 +83,17 @@ class FireStoreProvider : RemoteDataProvider {
                 value = currentUser?.let { User(it.displayName ?: "",
                         it.email ?: "") }
             }
+
+    override fun deleteNote(noteId: String): LiveData<Result> =
+            MutableLiveData<Result>().apply {
+                getUserNotesCollection().document(noteId).delete()
+                        .addOnSuccessListener {
+                            value = Result.Success(null)
+                        }.addOnFailureListener {
+                            value = Result.Error(it)
+                        }
+            }
+
 
 }
 
