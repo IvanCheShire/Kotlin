@@ -1,0 +1,17 @@
+
+class TestApp : Application() {
+
+    override fun onCreate() {
+        super.onCreate()
+
+        startKoin(this, emptyList())
+    }
+}
+
+class TestAppJUnitRunner : AndroidJUnitRunner() {
+
+    override fun newApplication(cl: ClassLoader?, className: String?, context: Context?): Application {
+        return super.newApplication(cl, TestApp::class.java.name, context)
+    }
+}
+
