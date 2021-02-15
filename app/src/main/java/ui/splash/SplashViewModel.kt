@@ -2,17 +2,17 @@ package ui.splash
 
 import ui.Repository
 import data.errors.NoAuthException
+import kotlinx.coroutines.launch
+import ui.base.BaseViewModel
 
 
-class SplashViewModel(repository: Repository) {
+class SplashViewModel(private val repository: Repository) : BaseViewModel<Boolean>() {
 
     fun requestUser() {
-        repository.getCurrentUser().observeForever {
-            viewStateLiveData.value = if (it != null) {
-                SplashViewState(isAuth = true)
-            } else {
-                SplashViewState(error = NoAuthException())
-            }
+        launch {
+            repository.getCurrentUser()?.let {
+                setData(true)
+            } ?: setError(NoAuthException())
         }
     }
 }

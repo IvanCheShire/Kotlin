@@ -19,7 +19,7 @@ import org.koin.android.viewmodel.ext.android.viewModel
 import ru.geekbrains.kotlin.R
 
 
-class MainActivity : BaseActivity<List<Note>?, MainViewState>(), LogoutDialog.LogoutListener {
+class MainActivity : BaseActivity<List<Note>?>(), LogoutDialog.LogoutListener {
 
     override val viewModel: SplashViewModel by inject()
     override val model: SplashViewModel by viewModel()

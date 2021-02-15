@@ -10,11 +10,13 @@ import android.view.Menu
 import android.view.MenuItem
 import data.model.Color
 import data.model.Note
+import kotlinx.coroutines.delay
 import org.jetbrains.anko.alert
 import org.jetbrains.anko.startActivity
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 import ru.geekbrains.kotlin.R
+import kotlinx.coroutines.launch
 import java.util.*
 private const val SAVE_DELAY = 2000L
 
@@ -117,19 +119,23 @@ class NoteActivity : BaseActivity<NoteViewState.Data, NoteViewState>() {
         bodyEt.removeTextChangedListener(textChangeListener)
     }
 
+
     private fun triggerSaveNote() {
         if (titleEt.text.length < 3 && bodyEt.text.length < 3) return
 
-        Handler().postDelayed({
+        launch {
+            delay(SAVE_DELAY)
+
             note = note?.copy(title = titleEt.text.toString(),
                     body = bodyEt.text.toString(),
                     lastChanged = Date(),
                     color = color)
                     ?: createNewNote()
 
-            note?.let { viewModel.saveChanges(it) }
-        }, SAVE_DELAY)
+            note?.let { model.saveChanges(it) }
+        }
     }
+
     private fun setToolbarColor(color: Color) {
         toolbar.setBackgroundColor(color.getColorInt(this))
     }

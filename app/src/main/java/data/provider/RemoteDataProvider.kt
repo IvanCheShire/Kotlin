@@ -7,11 +7,11 @@ import data.model.User
 
 interface RemoteDataProvider {
 
-    fun subscribeToAllNotes(): LiveData<Result>
-    fun getNoteById(id: String): LiveData<Result>
-    fun saveNote(note: Note) : LiveData<Result>
-    fun getCurrentUser(): LiveData<User?>
-    fun deleteNote(noteId: String): LiveData<Result>
+    fun subscribeToAllNotes(): Note
+    fun getNoteById(id: String): Note
+    fun saveNote(note: Note) : Note
+    fun getCurrentUser(): User
+    fun deleteNote(noteId: String): Note
 
 
 }

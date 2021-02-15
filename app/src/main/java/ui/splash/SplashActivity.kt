@@ -10,7 +10,7 @@ import ru.geekbrains.kotlin.R
 
 private const val START_DELAY = 1000L
 
-class SplashActivity : BaseActivity<Boolean?, SplashViewState>() {
+class SplashActivity : BaseActivity<Boolean>() {
 
     override val viewModel: SplashViewModel by inject()
     override val model: SplashViewModel by viewModel()

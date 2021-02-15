@@ -6,35 +6,28 @@ import androidx.lifecycle.Observer
 import data.model.Note
 import data.model.Result
 import data.model.Result.Error
+import kotlinx.coroutines.launch
+import ui.base.BaseViewModel
 
-class MainViewModel(repository: Repository){
 
-    private val notesObserver = object : Observer<Result> {//Стандартный обсервер LiveData
-    override fun onChanged(t: Result?) {
-        if (t == null) return
+class MainViewModel(private val repository: Repository) : BaseViewModel<List<Note>?>() {
 
-        when(t) {
-            is data.model.NoteResult.Result.Success<*> -> {
+    private val notesChannel = repository.getNotes()
 
-                viewStateLiveData.value = MainViewState(notes = t.data as? List<Note>)
-            }
-            is Error -> {
-
-                viewStateLiveData.value = MainViewState(error = t.error)
+    init {
+        launch {
+            notesChannel.consumeEach {
+                when (it) {
+                    is Result.Success<*> -> setData(it.data as? List<Note>)
+                    is Error -> setError(it.error)
+                }
             }
         }
     }
-    }
 
-    private val repositoryNotes = repository.getNotes()
-
-    init {
-        viewStateLiveData.value = MainViewState()
-        repositoryNotes.observeForever(notesObserver)
-    }
-
-    @VisibleForTesting
-    public override fun onCleared() {
-        repositoryNotes.removeObserver(notesObserver)
+    override fun onCleared() {
+        notesChannel.cancel()
+        super.onCleared()
     }
 }
+

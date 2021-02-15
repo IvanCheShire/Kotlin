@@ -9,31 +9,57 @@ import androidx.lifecycle.Observer
 import com.firebase.ui.auth.AuthUI
 import com.google.android.material.snackbar.Snackbar
 import data.errors.NoAuthException
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.consumeEach
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 import ru.geekbrains.kotlin.R
+import kotlin.coroutines.CoroutineContext
 
 
 private const val RC_SIGN_IN = 458
 
-    abstract class BaseActivity<T, S : BaseViewState<T>> : AppCompatActivity() {
+abstract class BaseActivity<T> : AppCompatActivity(), CoroutineScope {
 
-        override val viewModel: SplashViewModel by inject()
-        override val model: SplashViewModel by viewModel()
-        abstract val layoutRes: Int
+    override val coroutineContext: CoroutineContext by lazy { Dispatchers.Main + Job() }
+    private lateinit var dataJob: Job
+    private lateinit var errorJob: Job
+    abstract val model: BaseViewModel<T>
+    abstract val layoutRes: Int
 
-        override fun onCreate(savedInstanceState: Bundle?) {
-            super.onCreate(savedInstanceState)
-            setContentView(layoutRes)
-            viewModel.getViewState().observe(this, Observer<S> { t ->
-                t?.apply {
-                    data?.let { renderData(it) }
-                    error?.let { renderError(it) }
-                }
-            })
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(layoutRes)
+    }
+    override fun onStart() {
+        super.onStart()
+        dataJob = launch {
+            model.getViewState().consumeEach {
+                renderData(it)
+            }
         }
 
-        protected fun renderError(error: Throwable) {
+        errorJob = launch {
+            model.getErrorChannel().consumeEach {
+                renderError(it)
+            }
+        }
+    }
+    override fun onStop() {
+        super.onStop()
+        dataJob.cancel()
+        errorJob.cancel()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        coroutineContext.cancel()
+    }
+
+
+
+    protected fun renderError(error: Throwable) {
             error.message?.let { showError(it) }
         }
 
@@ -71,6 +97,7 @@ private const val RC_SIGN_IN = 458
                 finish()
             }
         }
+
     }
 
 
